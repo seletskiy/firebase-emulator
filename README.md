@@ -42,7 +42,7 @@ echo '{}' > firebase.json
 Then, you need to export your dataset:
 
 ```bash
-firebase --project <project-id> get / > database.json
+firebase --project <project-id> database:get / > database.json
 ```
 
 ## Start Docker container
