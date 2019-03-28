@@ -18,10 +18,11 @@ envsubst '$server_name $firebase_port' \
     < /etc/nginx/nginx.conf.template \
     > /etc/nginx/nginx.conf
 
-file=database.json
+data_file=database.json
+rules_file=database.rules.json
 
-if [[ ! -f $file ]]; then
-    echo "!! no $file file located in $(pwd) dir"
+if [[ ! -f $data_file ]]; then
+    echo "!! no $data_file data_file located in $(pwd) dir"
     exit 1
 fi
 
@@ -41,20 +42,27 @@ done 2>/dev/null
 echo " ok"
 
 :curl() {
+    local path=$1
+    shift
+
     curl -s -H "Authorization: Bearer owner" \
-        localhost:$firebase_port/.json "$@"
+        localhost:$firebase_port/$path "$@"
 }
 
-echo ":: importing $file into firebase"
+echo ":: importing $data_file into firebase"
+:curl ".json" -XPUT -d@$data_file > /dev/null
 
-:curl -XPUT -d@$file > /dev/null
+if [[ -f $rules_file ]]; then
+    echo ":: importing rules from $rules_file into firebase"
+    :curl ".settings/rules.json" -XPUT -d@$rules_file > /dev/null
+fi
 
 echo ":: ready"
 
 :stop() {
     echo ":: stopping"
 
-    :curl > $file
+    :curl ".json" > $data_file
 }
 
 trap :stop INT TERM
