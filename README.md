@@ -19,12 +19,11 @@ To do so, you need to have [firebase tool][1] to be installed.
 
 First, create some new directory to host your Firebase data and `cd` into it.
 
-Then, init project by using your existing remote Firebase project (choose
-only `Database` in interactive prompt):
+Then, init project by using your existing remote Firebase project:
 
 ```bash
 firebase list
-firebase --project <project-id> init
+firebase --project <project-id> init database
 ```
 
 After this step you should have two files in your directory:
