@@ -10,8 +10,12 @@ cd /firebase/
 if [[ ! -f nginx.pem || ! -f nginx.crt ]]; then
     echo ":: generating self-signed certificate"
 
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -keyout nginx.pem -out nginx.crt -subj "/CN=$server_name"
+    openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes \
+        -keyout nginx.pem -out nginx.crt \
+        -extensions v3_ca \
+        -subj "/CN=$server_name" \
+        -addext "subjectAltName=DNS:$server_name,DNS:$server_name,IP:127.0.0.1" \
+        -addext "basicConstraints=CA:TRUE"
 fi
 
 envsubst '$server_name $firebase_port' \
