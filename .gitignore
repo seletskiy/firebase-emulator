@@ -1,0 +1,5 @@
+database.json
+database.rules.json
+*.log
+nginx.crt
+nginx.pem
