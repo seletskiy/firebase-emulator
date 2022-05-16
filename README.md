@@ -25,7 +25,7 @@ firebase run -p 9099:9099 -p 4000:4000 firebase-emulator
 By default it will:
 * run Firebase Auth Emulator at http://localhost:9099/,
 * run Emulator UI at http://localhost:4000/,
-* use `demo-emulator` as project ID.
+* use `demo-project` as project ID.
 
 # Configuration
 
@@ -33,7 +33,7 @@ Configuration is done via the following env variables:
 * `FIREBASE_PORT_DATABASE` (default: 9000)
 * `FIREBASE_PORT_AUTH` (default: 9099)
 * `FIREBASE_PORT_UI` (default: 4000)
-* `FIREBASE_PROJECT` (default: `demo-emulator`)
+* `FIREBASE_PROJECT` (default: `demo-project`)
 
 # Client side
 
@@ -43,11 +43,11 @@ Configuration is done via the following env variables:
 
 1. Make sure that you use recent `firebase-admin` (at last `> 9.5.0`),
 2. Specify `FIREBASE_AUTH_EMULATOR_HOST` env var as `<host>:<port>` without (!) protocol prefix,
-3. Specify `demo-emulator` as project ID:
+3. Specify `demo-project` as project ID:
    ```javascript
    import admin from "firebase-admin"
 
-   admin.initializeApp({ projectId: "demo-emulator" })
+   admin.initializeApp({ projectId: "demo-project" })
    ```
 
 ### Client
