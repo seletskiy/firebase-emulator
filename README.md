@@ -1,6 +1,12 @@
-# Local Firebase Instance
+# Easy to use Firebase Emulator setup
 
 Project provides Docker container to run Firebase Emulator locally.
+
+Currently supported features:
+* Firebase Auth
+* Firebase Database
+
+Feel free to open PR to enable other Firebase features.
 
 # Usage
 
@@ -9,6 +15,46 @@ Project provides Docker container to run Firebase Emulator locally.
 ```bash
 docker build -t firebase-emulator .
 ```
+
+## Run
+
+```bash
+firebase run -p 9099:9099 -p 4000:4000 firebase-emulator
+```
+
+By default it will:
+* run Firebase Auth Emulator at http://localhost:9099/,
+* run Emulator UI at http://localhost:4000/,
+* use `demo-emulator` as project ID.
+
+# Configuration
+
+Configuration is done via the following env variables:
+* `FIREBASE_PORT_DATABASE` (default: 9000)
+* `FIREBASE_PORT_AUTH` (default: 9099)
+* `FIREBASE_PORT_UI` (default: 4000)
+* `FIREBASE_PROJECT` (default: `demo-emulator`)
+
+# Client side
+
+## Javascript
+
+### Server
+
+1. Make sure that you use recent `firebase-admin` (at last `> 9.5.0`),
+2. Specify `FIREBASE_AUTH_EMULATOR_HOST` env var as `<host>:<port>` without (!) protocol prefix,
+3. Specify `demo-emulator` as project ID:
+   ```javascript
+   import admin from "firebase-admin"
+
+   admin.initializeApp({ projectId: "demo-emulator" })
+   ```
+
+### Client
+
+1. Specify `FIREBASE_AUTH_EMULATOR_HOST` as `http://<host>:<port>` with (!) protocol prefix
+
+# Firebase Database (optional)
 
 ## Init Firebase project
 
@@ -49,31 +95,7 @@ firebase --project <project-id> database:get / > database.json
 You need to run this command from same directory as in previous step:
 
 ```bash
-docker run -d -v `pwd`:/firebase -p 443:443 firebase-emulator
-```
-
-## Add self-signed `nginx.crt` to your local trust store
-
-After container was started, `nginx.crt` file should appear in your Firebase
-directory.
-
-In order to access Firebase container by HTTPS, you need to add generated
-certificate into your local trust store:
-
-```bash
-sudo trust anchor nginx.crt
-```
-
-## Add `local.firebaseio.com` to hosts
-
-```bash
-sudo tee -a /etc/hosts <<< '127.0.0.1 local.firebaseio.com'
-```
-
-## Try
-
-```bash
-curl -s https://local.firebaseio.com/.json
+docker run -d -v `pwd`:/firebase -p 9000:9000 -p 9099:9099 -p 4000:4000 firebase-emulator
 ```
 
 [1]: https://github.com/firebase/firebase-tools
