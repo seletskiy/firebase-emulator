@@ -21,7 +21,7 @@ http {
         sub_filter 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap'
             '/static/fonts.googleapis.com/roboto.css';
 
-        sub_filter 'https://apis.google.com' 'http://localhost:9099/static/apis.google.com';
+        sub_filter 'https://apis.google.com' 'http://localhost:$firebase_port_auth/static/apis.google.com';
         sub_filter 'https://fonts.gstatic.com/' '/static/fonts.gstatic.com/';
         sub_filter 'https://fonts.googleapis.com/' '/static/fonts.googleapis.com/';
         sub_filter 'https://unpkg.com/' '/static/unpkg.com/';
