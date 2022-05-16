@@ -1,0 +1,69 @@
+daemon off;
+worker_processes 1;
+
+error_log /dev/stderr;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include mime.types;
+    client_max_body_size 100M;
+
+    server {
+        listen $firebase_port_auth;
+        server_name _;
+
+        sub_filter 'https://fonts.googleapis.com/icon?family=Material+Icons'
+            '/static/fonts.googleapis.com/material-icons.css';
+
+        sub_filter 'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap'
+            '/static/fonts.googleapis.com/roboto.css';
+
+        sub_filter 'https://apis.google.com' 'http://localhost:9099/static/apis.google.com';
+        sub_filter 'https://fonts.gstatic.com/' '/static/fonts.gstatic.com/';
+        sub_filter 'https://fonts.googleapis.com/' '/static/fonts.googleapis.com/';
+        sub_filter 'https://unpkg.com/' '/static/unpkg.com/';
+
+        sub_filter_once off;
+
+        location /static/apis.google.com/_/ {
+            root /firebase/;
+            rewrite ^ /static/apis.google.com/js/gapi.js;
+            add_header Access-Control-Allow-Origin *;
+            sub_filter_types *;
+            sub_filter_once off;
+        }
+
+        location /static/apis.google.com/js/api.js {
+            root /firebase/;
+            add_header Access-Control-Allow-Origin *;
+            if ($arg_onload = "") {
+                set $arg_onload "gapi_onload";
+            }
+
+            sub_filter 'https://apis.google.com' 'http://localhost:9099/static/apis.google.com';
+            sub_filter 'gapi_onload' "$arg_onload";
+            sub_filter
+                'sa=/^https?:\/\/[a-z0-9_.-]+\.google(rs)?\.com(:\d+)?'
+                'sa=/^https?:\/\/localhost(:\d+)?';
+
+            sub_filter_types *;
+        }
+
+        location /static/ {
+            root /firebase/;
+            add_header Access-Control-Allow-Origin *;
+            sub_filter_types *;
+            sub_filter_once off;
+        }
+
+        location / {
+            proxy_pass http://localhost:$firebase_port_auth_proxy;
+            proxy_pass_request_headers on;
+        }
+
+        access_log /dev/stdout;
+    }
+}

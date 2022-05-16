@@ -9,6 +9,8 @@ export firebase_project_id=${FIREBASE_PROJECT_ID:-demo-project}
 
 cd /firebase/
 
+export firebase_port_auth_proxy=$(( $firebase_port_auth + 100 ))
+
 cat > firebase.json <<JSON
 {
     "emulators": {
@@ -18,7 +20,7 @@ cat > firebase.json <<JSON
         },
         "auth": {
             "host": "0.0.0.0",
-            "port": $firebase_port_auth
+            "port": $firebase_port_auth_proxy
         },
         "ui": {
             "enabled": true,
@@ -44,9 +46,16 @@ fi
     firebase emulators:start 2>&1 \
         --project "$firebase_project_id" \
         --only auth${database_support:+,database} \
-            | sed -r 's/^/:: [fb] /'
+            | sed -ur 's/^/:: [firebase] /'
 ) &
 firebase_pid=$!
+
+envsubst '$firebase_port_auth $firebase_port_auth_proxy' \
+    < /etc/nginx/nginx.conf.template \
+    > /etc/nginx/nginx.conf
+
+( nginx | sed -ur 's/^/:: [nginx] /' ) &
+nginx_pid=$!
 
 :wait:port() {
     while ! echo >/dev/tcp/localhost/$1; do
@@ -91,4 +100,4 @@ echo ":: ready"
 
 trap :stop INT TERM
 
-wait $firebase_pid
+wait $firebase_pid $nginx_pid
