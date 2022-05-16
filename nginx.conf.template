@@ -43,7 +43,7 @@ http {
                 set $arg_onload "gapi_onload";
             }
 
-            sub_filter 'https://apis.google.com' 'http://localhost:9099/static/apis.google.com';
+            sub_filter 'https://apis.google.com' 'http://localhost:$firebase_port_auth/static/apis.google.com';
             sub_filter 'gapi_onload' "$arg_onload";
             sub_filter
                 'sa=/^https?:\/\/[a-z0-9_.-]+\.google(rs)?\.com(:\d+)?'
