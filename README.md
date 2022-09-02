@@ -19,7 +19,7 @@ docker build -t firebase-emulator .
 ## Run
 
 ```bash
-firebase run -p 9099:9099 -p 4000:4000 firebase-emulator
+docker run -p 9099:9099 -p 4000:4000 firebase-emulator
 ```
 
 By default it will:
