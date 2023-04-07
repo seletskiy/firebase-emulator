@@ -6,6 +6,17 @@ export firebase_port_database=${FIREBASE_PORT_DATABASE:-9000}
 export firebase_port_auth=${FIREBASE_PORT_AUTH:-9099}
 export firebase_port_ui=${FIREBASE_PORT_UI:-4000}
 export firebase_project_id=${FIREBASE_PROJECT_ID:-demo-project}
+export firebase_auth_accounts=${FIREBASE_AUTH_ACCOUNTS:-}
+
+:curl() {
+    curl -vs -H "Authorization: Bearer owner" "$@"
+}
+
+:curl:accounts() {
+    :curl "http://localhost:$firebase_port_auth_proxy/identitytoolkit.googleapis.com/v1/projects/$firebase_project_id/accounts" \
+        -HContent-Type:application/json \
+        "$@"
+}
 
 cd /firebase/
 
@@ -31,19 +42,13 @@ cat > firebase.json <<JSON
 }
 JSON
 
-data_file=database.json
-rules_file=database.rules.json
-
 database_support=on
-if [[ ! -f $data_file ]]; then
-    echo "!! no $data_file data file located in $(pwd) dir"
-    echo "!! database emulaator will be disabled"
 
-    database_support=
-fi
+data_dir=emulators.data
 
 (
     firebase emulators:start 2>&1 \
+        $([ -d $data_dir ] && echo "--import $data_dir") \
         --project "$firebase_project_id" \
         --only auth${database_support:+,database} \
             | sed -ur 's/^/:: [firebase] /'
@@ -69,33 +74,22 @@ nginx_pid=$!
     echo ":: ok"
 
 echo ":: waiting for firebase to start up — auth"
-:wait:port $firebase_port_auth
+:wait:port $firebase_port_auth_proxy
 echo ":: ok"
 
-:curl() {
-    local path=$1
-    shift
-
-    curl -s -H "Authorization: Bearer owner" \
-        localhost:$firebase_port_database/$path "$@"
+[[ ! -d $data_dir && "$firebase_auth_accounts" ]] && {
+    while read entry; do
+        [[ ! "$entry" ]] && break
+        :curl:accounts -X POST --data-raw "$entry"
+    done <<< "$firebase_auth_accounts"
 }
-
-[[ "$database_support" ]] &&
-    echo ":: importing $data_file into firebase" &&
-    :curl ".json" -XPUT -d@$data_file > /dev/null
-
-[[ "$database_support" && -f $rules_file ]] &&
-    echo ":: importing rules from $rules_file into firebase" &&
-    :curl ".settings/rules.json" -XPUT -d@$rules_file > /dev/null
 
 echo ":: ready"
 
 :stop() {
     echo
     echo ":: stopping"
-
-    [[ "$database_support" ]] &&
-        :curl ".json" > $data_file
+    firebase emulators:export --project "$firebase_project_id" -f $data_dir
 }
 
 trap :stop INT TERM
