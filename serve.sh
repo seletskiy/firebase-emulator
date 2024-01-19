@@ -3,6 +3,7 @@
 set -euo pipefail
 
 export firebase_port_database=${FIREBASE_PORT_DATABASE:-9000}
+export firebase_port_firestore=${FIREBASE_PORT_FIRESTORE:-9200}
 export firebase_port_auth=${FIREBASE_PORT_AUTH:-9099}
 export firebase_port_ui=${FIREBASE_PORT_UI:-4000}
 export firebase_project_id=${FIREBASE_PROJECT_ID:-demo-project}
@@ -33,6 +34,10 @@ cat > firebase.json <<JSON
             "host": "0.0.0.0",
             "port": $firebase_port_auth_proxy
         },
+        "firestore": {
+            "host": "0.0.0.0",
+            "port": $firebase_port_firestore
+        },
         "ui": {
             "enabled": true,
             "host": "0.0.0.0",
@@ -50,7 +55,7 @@ data_dir=emulators.data
     firebase emulators:start 2>&1 \
         $([ -d $data_dir ] && echo "--import $data_dir") \
         --project "$firebase_project_id" \
-        --only auth${database_support:+,database} \
+        --only auth${database_support:+,database},firestore \
             | sed -ur 's/^/:: [firebase] /'
 ) &
 firebase_pid=$!
