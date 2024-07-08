@@ -1,4 +1,4 @@
-FROM node:gallium-alpine
+FROM node:iron-alpine
 
 ENV FIREBASE_TOOLS_VERSION=11.25.2
 RUN yarn global add firebase-tools@${FIREBASE_TOOLS_VERSION} && \

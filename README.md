@@ -31,6 +31,7 @@ By default it will:
 
 Configuration is done via the following env variables:
 * `FIREBASE_PORT_DATABASE` (default: 9000)
+* `FIREBASE_PORT_FIRESTORE` (default: 9200)
 * `FIREBASE_PORT_AUTH` (default: 9099)
 * `FIREBASE_PORT_UI` (default: 4000)
 * `FIREBASE_PROJECT` (default: `demo-project`)
