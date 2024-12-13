@@ -1,4 +1,4 @@
-FROM node:gallium-alpine
+FROM node:jod-alpine
 
 ENV FIREBASE_TOOLS_VERSION=11.25.2
 RUN yarn global add firebase-tools@${FIREBASE_TOOLS_VERSION} && \
@@ -21,4 +21,4 @@ COPY nginx.conf.template /etc/nginx/
 
 HEALTHCHECK --interval=1s --timeout=1m --retries=60 \
   CMD /usr/bin/healthcheck.sh
-ENTRYPOINT "/usr/bin/serve.sh"
+ENTRYPOINT ["/usr/bin/serve.sh"]
